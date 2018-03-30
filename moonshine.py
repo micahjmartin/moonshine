@@ -3,9 +3,9 @@
 # Micah Martin (knif3)
 
 from shine import CONFIG
-from shine.tools import *  #addInterface, delInterface, getInterfaceLabels
+from shine.iproute2 import *  #addInterface, delInterface, getInterfaceLabels
 
 if __name__ == '__main__':
-    print(getDefault())
+    delRoute("10.90.100.2")
     #label = addInterface("192.168.58.133")
     #delInterface("192.168.58.133")
