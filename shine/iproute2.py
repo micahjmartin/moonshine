@@ -5,6 +5,7 @@ DEFAULT_ROUTE = None
 
 CONFIG = {}
 
+
 def addInterface(ip, label=None, dev=None):
     '''
     add a virtual interface with the specified IP address
@@ -13,17 +14,17 @@ def addInterface(ip, label=None, dev=None):
     if not dev:
         dev = CONFIG.get("interface", "eth0")
     # Generate a label for the virtual interface
-    label = "{}:shine{}".format(dev, random.randint(1,1000))
+    label = "{}:shine{}".format(dev, random.randint(1, 1000))
     while label in getInterfaceLabels(dev):
-        label = "{}:shine{}".format(dev, random.randint(1,1000))
-    
+        label = "{}:shine{}".format(dev, random.randint(1, 1000))
+
     # Add the interface
     command = "ip addr add {}/24 brd + dev {} label {}"
     command = command.format(ip, dev, label)
     res = execute(command)
     if res.get('status', 255) != 0:
         raise Exception("Cannot add interface: {}\n{}".format(
-                        res.get('stderr',''), command))
+                        res.get('stderr', ''), command))
     return {'label': label, 'ip': ip}
 
 
@@ -36,12 +37,12 @@ def delInterface(ip=None, label=None, dev=None):
     if ip is None and label is not None:
         try:
             ip = getLabelAddress(label)[0]
-        except:
+        except Exception as E:
             raise Exception("Cannot find interface for {}".format(label))
     res = execute("ip addr del {}/24 dev {}:*".format(ip, dev))
     if res.get('status', 255) != 0:
         raise Exception("Cannot delete interface: {}".format(
-                        res.get('stderr','')))
+                        res.get('stderr', '')))
     return True
 
 
@@ -63,7 +64,7 @@ def addRoute(ip, dev):
     res = execute(com)
     if res.get('status', 255) != 0:
         raise Exception("Cannot add route: {}".format(
-                        res.get('stderr','')))
+                        res.get('stderr', '')))
     return True
 
 
@@ -76,7 +77,7 @@ def delRoute(ip):
     res = execute(com)
     if res.get('status', 255) != 0:
         raise Exception("Cannot delete route: {}".format(
-                        res.get('stderr','')))
+                        res.get('stderr', '')))
     return True
 
 
@@ -91,13 +92,13 @@ def getInterfaceLabels(dev=None):
     command = "".join(("ip a show dev {0} | grep -Eo '{0}:[a-zA-Z0-9:]+'",
                        " | cut -d':' -f2-"))
     # command = "ip a show dev {0}"
-    command = command.format(dev)  #.split()
+    command = command.format(dev)
     res = execute(command)
     try:
         labels = res['stdout'].strip().split()
         return labels
     except Exception as E:
-        raise Exception("Cannot get labels: {}".format(res.get('stderr','')))
+        raise Exception("Cannot get labels: {}".format(res.get('stderr', '')))
 
 
 def getLabelAddress(label):
@@ -108,12 +109,12 @@ def getLabelAddress(label):
     '''
     command = ("ip addr show label {} | grep -Eo 'inet [0-9.]+'"
                " | cut -d' ' -f2")
-    command = "".join(command).format(label)  #.split()
+    command = "".join(command).format(label)
     res = execute(command)
     try:
         return res['stdout'].strip().split()
     except Exception as E:
-        raise Exception("Cannot get ip: {}".format(res.get('stderr','')))
+        raise Exception("Cannot get ip: {}".format(res.get('stderr', '')))
 
 
 def getDefault():
@@ -128,5 +129,5 @@ def getDefault():
             return default
         raise
     except Exception as E:
-        error = res.get('stderr','')
+        error = res.get('stderr', '')
         raise Exception("Cannot find default route: {}".format(error))

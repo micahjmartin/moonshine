@@ -6,9 +6,9 @@ import random
 import shlex
 
 from .iproute2 import addInterface, delInterface
-from .tools import execute
 
 CONFIG = {}
+
 
 def debug(*args, **kwargs):
     print(*args, **kwargs)
@@ -71,26 +71,23 @@ def newProxy():
     i = {}
     i['user'] = os.environ['USER']
     i['ip'] = os.environ.get('SSH_CONNECTION', False)
-    args = os.environ.get('SSH_ORIGINAL_COMMAND',"").strip()
+    args = os.environ.get('SSH_ORIGINAL_COMMAND', "").strip()
     if args is "":
         badRemote(i['user'])
     i['remote'] = parseCom(args)
 
     # Make sure we are in an ssh session
-    if not i['ip'] :
+    if not i['ip']:
         print("Moonshine must be run from within an SSH session!\nExiting...")
         quit(255)
     else:
         i['ip'] = i['ip'].split()[0]  # Get the actual IP from env var
-    
     # Generate a new IP address
     newip = CONFIG["netmask"].split("/")[0]
     newip = newip.split(".")[:3]
-    newip += [str(random.randint(100,254))]
+    newip += [str(random.randint(100, 254))]
     newip = ".".join(newip)
     i['remote']['newip'] = newip
-    # Try to get a password to use by default
-    # The host is the first command to 
     # Print context
     print(json.dumps(i, indent=2))
     # Create the final SSH command to send

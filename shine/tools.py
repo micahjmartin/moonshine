@@ -13,8 +13,6 @@ def execute(args):
         retval['stderr'] = proc.stderr.read().decode("utf-8")
         retval['status'] = proc.wait()
     except Exception as E:
-        debug(args)
-        debug(E)
+        print(args)
+        print(E)
     return retval
-
-
