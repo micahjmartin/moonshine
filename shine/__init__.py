@@ -2,8 +2,10 @@ import yaml
 import pty
 import os
 import json
+import random
 import shlex
 
+from .iproute2 import addInterface, delInterface
 from .tools import execute
 
 CONFIG = {}
@@ -49,6 +51,8 @@ def buildCom(r):
         command = r['user'] + "@" + command
     if r.get('commands', False):
         command += ' ' + r['commands']
+    if r.get('newip', False) and r.get('host') != "localhost":
+        command = "-b " + r.get('newip') + " " + command
     command = 'ssh -tt -A -o StrictHostKeyChecking=no ' + command
     if r.get('pass', False):
         command = "sshpass -p "+r['pass'] + " " + command
@@ -79,6 +83,12 @@ def newProxy():
     else:
         i['ip'] = i['ip'].split()[0]  # Get the actual IP from env var
     
+    # Generate a new IP address
+    newip = CONFIG["netmask"].split("/")[0]
+    newip = newip.split(".")[:3]
+    newip += [str(random.randint(100,254))]
+    newip = ".".join(newip)
+    i['remote']['newip'] = newip
     # Try to get a password to use by default
     # The host is the first command to 
     # Print context
@@ -87,4 +97,6 @@ def newProxy():
     # split the command into an array of arguments for spawn
     command = shlex.split(buildCom(i['remote']))
     print(command, flush=True)
+    addInterface(newip)
     pty.spawn(command)
+    delInterface(newip)

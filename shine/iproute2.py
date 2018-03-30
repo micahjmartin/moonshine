@@ -1,9 +1,9 @@
 import random
-from.tools import execute
-from . import CONFIG, debug
+from .tools import execute
 
 DEFAULT_ROUTE = None
 
+CONFIG = {}
 
 def addInterface(ip, label=None, dev=None):
     '''
@@ -19,10 +19,12 @@ def addInterface(ip, label=None, dev=None):
     
     # Add the interface
     command = "ip addr add {}/24 brd + dev {} label {}"
-    res = execute(command.format(ip, dev, label))
+    command = command.format(ip, dev, label)
+    res = execute(command)
     if res.get('status', 255) != 0:
-        raise Exception("Cannot add interface: {}".format(res.get('stderr','')))
-    return label
+        raise Exception("Cannot add interface: {}\n{}".format(
+                        res.get('stderr',''), command))
+    return {'label': label, 'ip': ip}
 
 
 def delInterface(ip=None, label=None, dev=None):
