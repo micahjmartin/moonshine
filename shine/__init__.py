@@ -19,7 +19,42 @@ try:
 except Exception as E:
     pass
 
-# The main function to accept
+
+def parseCom(args):
+    '''
+    Convert an SSH command into user, pass, host, and commands
+    '''
+    r = {}
+    if ' ' in args:
+        r['host'], r['commands'] = args.split(" ", 1)
+    else:
+        r['host'] = args
+    if "@" in r['host']:
+        d = r['host']
+        r['user'], r['host'] = d.split("@", 1)
+        if ":" in r['user']:
+            r['user'],\
+                r['pass'] = r['user'].split(":", 1)
+    if 'user' not in r:
+        r['user'] = 'root'
+    return r
+
+
+def buildCom(r):
+    '''
+    Turn a dictionary of ssh settings into an ssh command
+    '''
+    command = r['host']
+    if r.get('user', False):
+        command = r['user'] + "@" + command
+    if r.get('commands', False):
+        command += ' ' + r['commands']
+    command = 'ssh -tt -A -o StrictHostKeyChecking=no ' + command
+    if r.get('pass', False):
+        command = "sshpass -p "+r['pass'] + " " + command
+    return command
+
+
 def newProxy():
     '''
     Initialize a new proxy to connect to the remote box
@@ -32,20 +67,24 @@ def newProxy():
     i = {}
     i['user'] = os.environ['USER']
     i['ip'] = os.environ.get('SSH_CONNECTION', False)
-    i['dest'] = os.environ.get('SSH_ORIGINAL_COMMAND',False)
-    
+    args = os.environ.get('SSH_ORIGINAL_COMMAND',"").strip()
+    if args is "":
+        badRemote(i['user'])
+    i['remote'] = parseCom(args)
+
     # Make sure we are in an ssh session
     if not i['ip'] :
         print("Moonshine must be run from within an SSH session!\nExiting...")
         quit(255)
     else:
-        i['ip'] = i['ip'].split()[1]  # Get the actual IP from env var
+        i['ip'] = i['ip'].split()[0]  # Get the actual IP from env var
     
-    if i['dest'] is False:
-        badRemote(i['user'])
+    # Try to get a password to use by default
+    # The host is the first command to 
     # Print context
-    print(i)
-    command = 'ssh -tt -A -o StrictHostKeyChecking=no {}'.format(i['dest'])
+    print(json.dumps(i, indent=2))
+    # Create the final SSH command to send
+    # split the command into an array of arguments for spawn
+    command = shlex.split(buildCom(i['remote']))
     print(command, flush=True)
-    command = shlex.split(command)
     pty.spawn(command)

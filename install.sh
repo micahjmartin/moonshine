@@ -11,7 +11,7 @@ chmod 755 /usr/bin/moonshine
 grep "/usr/bin/moonshine" /etc/ssh/sshd_config 2>/dev/null >/dev/null;
 if [ "$?" != "0" ]; then
     echo "Adding moonshine to sshd config"
-    echo "Match User moonshine" >> /etc/ssh/sshd_config
-    echo "    ForceCommand /usr/bin/moonshine" >> /etc/ssh/sshd_config
+    echo "Match User shine" >> /etc/ssh/sshd_config
+    echo -e "\tForceCommand /usr/bin/moonshine" >> /etc/ssh/sshd_config
     service ssh restart
 fi

@@ -9,5 +9,10 @@ bash install.sh
 
 Then from a client machine, connect to moonshine by running the following
 ```
-ssh -A shine@moonshine root@remotebox
+ssh -A shine@moonshine remotebox ls -al
+```
+
+Specify a user and password to use on the remote host
+```
+ssh -A shine@moonshine root:toor@remotebox
 ```
