@@ -6,6 +6,6 @@ from shine import CONFIG
 from shine.tools import *  #addInterface, delInterface, getInterfaceLabels
 
 if __name__ == '__main__':
-    #print(addInterface("192.168.58.133"))
-    print(delInterface("192.168.58.133"))
-    #print(getLabelAddress("eth0:shine77"))
+    print(getDefault())
+    #label = addInterface("192.168.58.133")
+    #delInterface("192.168.58.133")
