@@ -1,7 +1,16 @@
 #!/bin/bash
 # Install shine for SSH
 
-cp -rv shine /usr/lib/python3/dist-packages/
-cp -v moonshine.py /usr/bin/moonshine
+rm -frv shine/__pycache__/
+rm -frv /usr/lib/python3/dist-packages/moonshine
+/bin/cp -rvf shine /usr/lib/python3/dist-packages/moonshine
+/bin/cp -vf moonshine.py /usr/bin/moonshine
+mkdir -p /etc/moonshine
+/bin/cp -vf moonshine.yml /etc/moonshine/moonshine.yml
 chmod 755 /usr/bin/moonshine
-echo "ForceCommand /usr/bin/moonshine" >> /etc/ssh/sshd_config
+grep "/usr/bin/moonshine" /etc/ssh/sshd_config 2>/dev/null >/dev/null;
+if [ "$?" != "0" ]; then
+    echo "Adding moonshine to sshd config"
+    echo "ForceCommand /usr/bin/moonshine" >> /etc/ssh/sshd_config
+    service ssh restart
+fi
