@@ -16,3 +16,8 @@ Specify a user and password to use on the remote host
 ```
 ssh -A shine@moonshine root:toor@remotebox
 ```
+
+To create an alias for moonshine
+```
+alias moonshine='sshpass -p password ssh -A shine@moonshine'
+```
